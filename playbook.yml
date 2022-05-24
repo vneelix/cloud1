@@ -1,27 +1,33 @@
 - hosts: cloud1
   become: true
+  become_user: root
 
   tasks:
-  - name: Add an Apt signing docker-repo key
+  - name: Add an apt signing docker-repo key
     ansible.builtin.apt_key:
       url: https://download.docker.com/linux/{{ansible_distribution|lower}}/gpg
       state: present
 
-  - name: Add specified repository into sources list
+  - name: Add docker repository into sources list
     ansible.builtin.apt_repository:
       repo: deb https://download.docker.com/linux/{{ansible_distribution|lower}} {{ansible_distribution_release}} stable
       state: present
 
-  - name: Apt update
-    apt:
-      update_cache: yes
-  - name: Apt upgrade
+  - name: Apt update-upgrade
     apt:
       upgrade: yes
+      update_cache: yes
 
   - name: Install docker-ce-cli
     apt:
       pkg:
+        - docker-ce
         - docker-ce-cli
         - containerd.io
         - docker-compose-plugin
+  
+  - name: Allow all access to tcp port 80
+    community.general.ufw:
+      rule: allow
+      port: '80'
+      proto: tcp
