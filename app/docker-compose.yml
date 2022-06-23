@@ -1,0 +1,46 @@
+services:
+  mysql:
+    build:
+      context: mySQL
+      args:
+        TCP_PORT: 75410
+        DATABASE: wp_database
+    volumes:
+      - mysql_database:/var/lib/mysql
+    restart: always
+
+  phpmyadmin:
+    links:
+      - mysql
+    build:
+      context: phpMyAdmin
+      args:
+        HOST: mysql
+        MYSQL_TCP_PORT: 75410
+    depends_on:
+      - mysql
+    ports:
+      - 8080:80
+    restart: always
+
+  wordpress:
+    links:
+      - mysql
+    build:
+      context: wordpress
+      args:
+        DB_HOST: mysql:75410
+        DB_USER: user
+        DB_PASSWORD: user
+        DB_NAME: wp_database
+    volumes:
+      - wordpress:/var/www/html
+    restart: always
+    ports:
+      - 8081:80
+    depends_on:
+      - mysql
+
+volumes:
+  wordpress:
+  mysql_database:

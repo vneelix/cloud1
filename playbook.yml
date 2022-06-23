@@ -18,16 +18,52 @@
       upgrade: yes
       update_cache: yes
 
-  - name: Install docker-ce-cli
+  - name: Install depencies
     apt:
       pkg:
+        - python3
+        - pip
         - docker-ce
         - docker-ce-cli
         - containerd.io
         - docker-compose-plugin
-  
-  - name: Allow all access to tcp port 80
+
+  - name: Install ansible-docker depencies
+    pip:
+      name:
+        - pyyaml
+        - docker
+        - docker-compose
+
+  - name: Allow all access to tcp port 8080
     community.general.ufw:
       rule: allow
-      port: '80'
+      port: 8080
       proto: tcp
+
+  - name: Allow all access to tcp port 8081
+    community.general.ufw:
+      rule: allow
+      port: 8081
+      proto: tcp
+
+  - name: Copy APP to remote host
+    copy:
+      src: app
+      dest: /home/{{ansible_user}}/
+
+  - name: Delete previous app version
+    community.docker.docker_compose:
+      project_src: /home/{{ansible_user}}/app
+      files:
+      - docker-compose.yml
+      state: absent
+      remove_volumes: yes
+      remove_orphans: yes
+
+  - name: Deploy APP
+    community.docker.docker_compose:
+      project_src: /home/{{ansible_user}}/app
+      files:
+      - docker-compose.yml
+      build: yes

@@ -1,2 +1,0 @@
-[cloud1]
-cloud ansible_host=localhost ansible_port=2200 ansible_user=vneelix ansible_ssh_pass=vneelix ansible_become_password=vneelix
