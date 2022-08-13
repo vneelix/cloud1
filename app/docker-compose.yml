@@ -3,8 +3,11 @@ services:
     build:
       context: mySQL
       args:
-        TCP_PORT: 75410
-        DATABASE: wp_database
+        USER: ${CLOUD1_DB_USER}
+        PASSWORD: ${CLOUD1_DB_PASSWORD}
+        TCP_PORT: ${CLOUD1_DB_TCP_PORT}
+        DATABASE: ${CLOUD1_DB_NAME}
+        ROOT_PASS: ${CLOUD1_DB_ROOT_PASSWORD}
     volumes:
       - mysql_database:/var/lib/mysql
     restart: always
@@ -16,7 +19,7 @@ services:
       context: phpMyAdmin
       args:
         HOST: mysql
-        MYSQL_TCP_PORT: 75410
+        MYSQL_TCP_PORT: ${CLOUD1_DB_TCP_PORT}
     depends_on:
       - mysql
     ports:
@@ -29,10 +32,10 @@ services:
     build:
       context: wordpress
       args:
-        DB_HOST: mysql:75410
-        DB_USER: user
-        DB_PASSWORD: user
-        DB_NAME: wp_database
+        DB_HOST: mysql:${CLOUD1_DB_TCP_PORT}
+        DB_USER: ${CLOUD1_DB_USER}
+        DB_PASSWORD: ${CLOUD1_DB_PASSWORD}
+        DB_NAME: ${CLOUD1_DB_NAME}
     volumes:
       - wordpress:/var/www/html
     restart: always
